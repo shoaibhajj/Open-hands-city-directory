@@ -1,0 +1,100 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "view": "View",
+    "noResults": "No results found"
+  },
+  "nav": {
+    "home": "Home",
+    "directory": "Directory",
+    "search": "Search",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Sign Out",
+    "dashboard": "Dashboard",
+    "myBusiness": "My Business",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "verifyEmail": "Verify Email",
+    "checkEmail": "Check your email for the verification link",
+    "passwordResetSent": "Password reset link sent to your email",
+    "invalidCredentials": "Invalid email or password",
+    "emailAlreadyExists": "Email already exists",
+    "passwordTooShort": "Password must be at least 8 characters"
+  },
+  "business": {
+    "name": "Name",
+    "description": "Description",
+    "address": "Address",
+    "phone": "Phone Number",
+    "category": "Category",
+    "city": "City",
+    "hours": "Working Hours",
+    "socialLinks": "Social Links",
+    "photos": "Photos",
+    "videos": "Videos",
+    "create": "Add Business",
+    "edit": "Edit Business",
+    "delete": "Delete Business",
+    "status": {
+      "draft": "Draft",
+      "pending": "Pending Review",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "ownerDashboard": "Owner Dashboard"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "users": "Users",
+    "businesses": "Businesses",
+    "categories": "Categories",
+    "media": "Media",
+    "auditLog": "Audit Log",
+    "approve": "Approve",
+    "reject": "Reject",
+    "suspend": "Suspend",
+    "restore": "Restore",
+    "usersCount": "Total Users",
+    "businessesCount": "Total Businesses",
+    "pendingApprovals": "Pending Approvals"
+  },
+  "directory": {
+    "title": "Daleel Al-Nabk",
+    "subtitle": "Business directory for Al Nabk, Syria",
+    "searchPlaceholder": "Search for companies, shops, restaurants...",
+    "featured": "Featured",
+    "allCategories": "All Categories",
+    "viewAll": "View All"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "serverError": "Server error"
+  }
+}

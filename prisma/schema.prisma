@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  GUEST
+  BUSINESS_OWNER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum BusinessStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum MediaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  YOUTUBE
+  TIKTOK
+  LINKEDIN
+  WHATSAPP
+  TELEGRAM
+}
+
+enum NotificationType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  BUSINESS_APPROVED
+  BUSINESS_REJECTED
+  BUSINESS_SUSPENDED
+  VIDEO_MODERATION
+  CATEGORY_SUGGESTION
+  GENERAL
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  fullName        String
+  role            UserRole  @default(GUEST)
+  isEmailVerified Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions             Session[]
+  emailVerifications   EmailVerificationToken[]
+  passwordResets       PasswordResetToken[]
+  businesses           BusinessProfile[]
+  categorySuggestions  CategorySuggestion[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+
+  @@index([email])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+model City {
+  id          String   @id @default(cuid())
+  nameArabic  String
+  nameEnglish String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  businesses BusinessProfile[]
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  nameArabic    String
+  nameEnglish   String
+  slugArabic    String    @unique
+  slugEnglish   String    @unique
+  descriptionArabic String?
+  descriptionEnglish String?
+  icon          String?
+  parentId      String?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  parent        Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryHierarchy")
+  businesses    BusinessProfile[]
+  suggestions   CategorySuggestion[]
+
+  @@index([slugArabic])
+  @@index([slugEnglish])
+}
+
+model CategorySuggestion {
+  id              String   @id @default(cuid())
+  userId          String
+  nameArabic      String
+  nameEnglish     String
+  descriptionArabic String?
+  descriptionEnglish String?
+  status          String   @default("PENDING")
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  reviewedAt      DateTime?
+
+  user     User      @relation(fields: [userId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+
+  @@index([userId])
+}
+
+model BusinessProfile {
+  id              String         @id @default(cuid())
+  ownerId         String
+  cityId          String
+  categoryId      String
+  nameArabic      String
+  nameEnglish     String
+  descriptionArabic String       @db.Text
+  descriptionEnglish String     @db.Text
+  addressArabic   String?
+  addressEnglish  String?
+  website         String?
+  email           String?
+  status          BusinessStatus @default(DRAFT)
+  searchText      String         @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  owner      User          @relation(fields: [ownerId], references: [id])
+  city       City          @relation(fields: [cityId], references: [id])
+  category   Category      @relation(fields: [categoryId], references: [id])
+  phones     PhoneNumber[]
+  hours      WorkingHour[]
+  socialLinks SocialLink[]
+  media      MediaFile[]
+
+  @@index([ownerId])
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([searchText])
+}
+
+model PhoneNumber {
+  id          String   @id @default(cuid())
+  businessId  String
+  number      String
+  labelArabic String?
+  labelEnglish String?
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  business BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+model WorkingHour {
+  id          String   @id @default(cuid())
+  businessId  String
+  dayOfWeek   Int      // 0 = Sunday, 6 = Saturday
+  openTime    String?  // "09:00"
+  closeTime   String?  // "18:00"
+  isClosed    Boolean  @default(false)
+
+  business BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, dayOfWeek])
+  @@index([businessId])
+}
+
+model SocialLink {
+  id        String         @id @default(cuid())
+  businessId String
+  platform  SocialPlatform
+  url       String
+  createdAt DateTime       @default(now())
+
+  business BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+model MediaFile {
+  id          String      @id @default(cuid())
+  businessId  String
+  type        MediaType
+  url         String
+  publicId    String?     // Cloudinary public ID
+  thumbnailUrl String?
+  captionArabic String?
+  captionEnglish String?
+  status      MediaStatus @default(PENDING)
+  fileSize    Int?        // in bytes
+  width       Int?
+  height      Int?
+  duration    Int?        // for videos, in seconds
+  createdAt   DateTime    @default(now())
+  moderatedAt DateTime?
+  moderatedBy String?
+
+  business BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([status])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  titleArabic String
+  titleEnglish String
+  messageArabic String        @db.Text
+  messageEnglish String      @db.Text
+  link      String?
+  status    NotificationStatus @default(UNREAD)
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  entityType  String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
+model PlatformSettings {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  valueArabic   String?
+  valueEnglish  String?
+  valueJson     Json?
+  updatedAt     DateTime @updatedAt
+
+  @@index([key])
+}
