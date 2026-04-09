@@ -1,1 +1,0 @@
-# Open-hands-city-directory
